@@ -1,0 +1,414 @@
+openapi: 3.1.0
+info:
+  title: Chat App API
+  version: 0.1.0
+  description: |
+    REST contract for feature 001 (sign-in, devices, profile, contacts).
+    Canonical copy lives in the api repo at contracts/openapi.yaml.
+servers:
+  - url: http://localhost:3000/v1
+security:
+  - bearer: []
+tags:
+  - name: auth
+  - name: devices
+  - name: profile
+  - name: contacts
+
+paths:
+  /auth/request-code:
+    post:
+      tags: [auth]
+      operationId: requestCode
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RequestCodeBody' }
+            example: { phone: '+255712345678' }
+      responses:
+        '202':
+          description: Code sent if the number is valid. Same response whether or not an account exists.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RequestCodeResponse' }
+              example: { expiresIn: 300, resendAfter: 60 }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /auth/verify:
+    post:
+      tags: [auth]
+      operationId: verifyCode
+      security: []
+      description: |
+        Verifies the code and signs the device in. `deviceType: android` creates the account if
+        needed and revokes any other Android device. `deviceType: web` requires an existing
+        account and evicts the least recently active web device if 4 are already signed in.
+        For web, the refresh token is set as an HttpOnly cookie and omitted from the body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerifyBody' }
+            example: { phone: '+255712345678', code: '123456', deviceType: android, deviceName: 'Pixel 8' }
+      responses:
+        '200':
+          description: Signed in.
+          headers:
+            Set-Cookie:
+              description: Web only. `rt=<refresh>; HttpOnly; Secure; SameSite=Strict; Path=/v1/auth`
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResult' }
+              example:
+                accessToken: eyJhbGciOiJIUzI1NiJ9.e30.sig
+                expiresIn: 900
+                refreshToken: 3q2-7wAAAAA
+                isNewAccount: true
+                device: { id: 0192f8a0-0000-7000-8000-000000000001, type: android, name: Pixel 8, createdAt: '2026-11-17T10:00:00Z', lastActiveAt: '2026-11-17T10:00:00Z', current: true }
+                user: { id: 0192f8a0-0000-7000-8000-000000000002, phone: '+255712345678', displayName: null, about: 'Hey there! I am using Chat App.', avatarUrl: null, profileComplete: false }
+        '400': { $ref: '#/components/responses/Error' }
+        '401':
+          description: Wrong, expired or used code (`INVALID_CODE`, `CODE_EXPIRED`, `TOO_MANY_ATTEMPTS`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404':
+          description: Web sign-in for a number with no account (`ACCOUNT_NOT_FOUND`). Only returned after a correct code.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refresh
+      security: []
+      description: Rotates the refresh token. Android sends it in the body; web sends the `rt` cookie.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshBody' }
+      responses:
+        '200':
+          description: New token pair (web gets a new cookie and no `refreshToken` field).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+              example: { accessToken: eyJhbGciOiJIUzI1NiJ9.e30.sig, expiresIn: 900, refreshToken: 3q2-7wAAAAB }
+        '401':
+          description: Refresh token invalid, expired, reused, or device revoked (`SESSION_REVOKED`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /auth/sign-out:
+    post:
+      tags: [auth]
+      operationId: signOut
+      description: Revokes the current device.
+      responses:
+        '204': { description: Signed out. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /devices:
+    get:
+      tags: [devices]
+      operationId: listDevices
+      responses:
+        '200':
+          description: Active devices of the current user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Device' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /devices/{deviceId}:
+    delete:
+      tags: [devices]
+      operationId: revokeDevice
+      parameters:
+        - { name: deviceId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Device signed out; it receives `device:revoked`. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /me:
+    get:
+      tags: [profile]
+      operationId: getMe
+      responses:
+        '200':
+          description: Current user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    patch:
+      tags: [profile]
+      operationId: updateMe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateProfileBody' }
+            example: { displayName: Frank, about: Available }
+      responses:
+        '200':
+          description: Updated user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '400': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/avatar:
+    put:
+      tags: [profile]
+      operationId: uploadAvatar
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary, description: 'JPEG, PNG or WebP, max 5 MB' }
+      responses:
+        '200':
+          description: Updated user with new avatar URLs.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '400': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [profile]
+      operationId: deleteAvatar
+      responses:
+        '200':
+          description: Updated user without avatar.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+
+  /avatars/{key}:
+    get:
+      tags: [profile]
+      operationId: getAvatar
+      security: []
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: WebP image. `Cache-Control: public, max-age=31536000, immutable`.
+          content:
+            image/webp:
+              schema: { type: string, format: binary }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /contacts/discover:
+    post:
+      tags: [contacts]
+      operationId: discoverContacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DiscoverBody' }
+            example: { phones: ['+255712345678', '+255700000000'] }
+      responses:
+        '200':
+          description: Accounts among the submitted numbers. Unmatched numbers are not stored.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PublicUser' }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /contacts:
+    get:
+      tags: [contacts]
+      operationId: listContacts
+      responses:
+        '200':
+          description: Contacts with accounts, sorted by display name.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PublicUser' }
+
+  /users/lookup:
+    get:
+      tags: [contacts]
+      operationId: lookupUser
+      parameters:
+        - { name: phone, in: query, required: true, schema: { $ref: '#/components/schemas/Phone' } }
+      responses:
+        '200':
+          description: The account for this number.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicUser' }
+        '404':
+          description: Number not on the app (`USER_NOT_FOUND`).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Error:
+      description: Error.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing/expired access token or revoked device.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Too many requests.
+      headers:
+        Retry-After: { schema: { type: integer }, description: Seconds to wait. }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Phone:
+      type: string
+      pattern: '^\+[1-9]\d{6,14}$'
+      description: E.164
+    DeviceType:
+      type: string
+      enum: [android, web]
+    RequestCodeBody:
+      type: object
+      required: [phone]
+      additionalProperties: false
+      properties:
+        phone: { $ref: '#/components/schemas/Phone' }
+    RequestCodeResponse:
+      type: object
+      required: [expiresIn, resendAfter]
+      properties:
+        expiresIn: { type: integer, description: seconds }
+        resendAfter: { type: integer, description: seconds }
+    VerifyBody:
+      type: object
+      required: [phone, code, deviceType, deviceName]
+      additionalProperties: false
+      properties:
+        phone: { $ref: '#/components/schemas/Phone' }
+        code: { type: string, pattern: '^\d{6}$' }
+        deviceType: { $ref: '#/components/schemas/DeviceType' }
+        deviceName: { type: string, minLength: 1, maxLength: 64 }
+    RefreshBody:
+      type: object
+      additionalProperties: false
+      properties:
+        refreshToken: { type: string, description: Android only }
+    TokenPair:
+      type: object
+      required: [accessToken, expiresIn]
+      properties:
+        accessToken: { type: string }
+        expiresIn: { type: integer, description: seconds }
+        refreshToken: { type: string, description: Omitted for web (cookie). }
+    AuthResult:
+      allOf:
+        - $ref: '#/components/schemas/TokenPair'
+        - type: object
+          required: [isNewAccount, device, user]
+          properties:
+            isNewAccount: { type: boolean }
+            device: { $ref: '#/components/schemas/Device' }
+            user: { $ref: '#/components/schemas/Me' }
+    Device:
+      type: object
+      required: [id, type, name, createdAt, lastActiveAt, current]
+      properties:
+        id: { type: string, format: uuid }
+        type: { $ref: '#/components/schemas/DeviceType' }
+        name: { type: string }
+        createdAt: { type: string, format: date-time }
+        lastActiveAt: { type: string, format: date-time }
+        current: { type: boolean, description: True for the device making the request. }
+    PublicUser:
+      type: object
+      required: [id, phone, displayName, about, avatarUrl]
+      properties:
+        id: { type: string, format: uuid }
+        phone: { $ref: '#/components/schemas/Phone' }
+        displayName: { type: [string, 'null'] }
+        about: { type: string }
+        avatarUrl: { type: [string, 'null'], format: uri }
+        avatarThumbUrl: { type: [string, 'null'], format: uri }
+    Me:
+      allOf:
+        - $ref: '#/components/schemas/PublicUser'
+        - type: object
+          required: [profileComplete]
+          properties:
+            profileComplete: { type: boolean }
+    UpdateProfileBody:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 25 }
+        about: { type: string, maxLength: 140 }
+    DiscoverBody:
+      type: object
+      required: [phones]
+      additionalProperties: false
+      properties:
+        phones:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items: { $ref: '#/components/schemas/Phone' }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - VALIDATION_FAILED
+            - INVALID_PHONE
+            - INVALID_CODE
+            - CODE_EXPIRED
+            - TOO_MANY_ATTEMPTS
+            - ACCOUNT_NOT_FOUND
+            - USER_NOT_FOUND
+            - DEVICE_NOT_FOUND
+            - SESSION_REVOKED
+            - UNAUTHORIZED
+            - RATE_LIMITED
+            - FILE_TOO_LARGE
+            - UNSUPPORTED_MEDIA_TYPE
+            - INTERNAL
+        message: { type: string }
+        details: { type: object, additionalProperties: true }

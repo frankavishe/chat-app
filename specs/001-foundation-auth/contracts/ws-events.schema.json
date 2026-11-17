@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chatapp.local/contracts/ws-events.schema.json",
+  "title": "Chat App realtime events",
+  "description": "Socket.IO namespace /rt. Connect with auth: { token: <accessToken> }. Server joins the socket to rooms user:{userId} and device:{deviceId}. Canonical copy lives in the api repo at contracts/ws-events.schema.json.",
+  "type": "object",
+  "properties": {
+    "protocolVersion": { "const": 1 }
+  },
+  "$defs": {
+    "server-to-client": {
+      "type": "object",
+      "description": "Event name -> payload schema.",
+      "properties": {
+        "device:revoked": {
+          "description": "Sent to device:{deviceId}. Client must wipe local data and return to sign-in.",
+          "type": "object",
+          "required": ["deviceId", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "deviceId": { "type": "string", "format": "uuid" },
+            "reason": { "enum": ["signed_out", "replaced", "evicted", "token_reuse", "inactive"] }
+          }
+        },
+        "profile:updated": {
+          "description": "Sent to user:{id} of the user and of every user who has them as a contact.",
+          "type": "object",
+          "required": ["id", "displayName", "about", "avatarUrl"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "format": "uuid" },
+            "displayName": { "type": ["string", "null"] },
+            "about": { "type": "string" },
+            "avatarUrl": { "type": ["string", "null"] },
+            "avatarThumbUrl": { "type": ["string", "null"] }
+          }
+        },
+        "auth:expired": {
+          "description": "Sent just before the server disconnects a socket whose access token expired. Client refreshes and reconnects.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        }
+      }
+    },
+    "client-to-server": {
+      "type": "object",
+      "description": "No client-to-server events in feature 001. Connection errors use Socket.IO connect_error with data.code in [UNAUTHORIZED, SESSION_REVOKED].",
+      "properties": {}
+    }
+  }
+}
