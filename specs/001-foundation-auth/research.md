@@ -102,14 +102,20 @@ No `NEEDS CLARIFICATION` items were left in the spec. This file records the tech
 
 ## R10. Backend libraries
 
-- **Decision**: NestJS (current stable) with: Prisma (ORM + migrations), `@nestjs/jwt`,
-  `class-validator`/`class-transformer` for DTOs, `ioredis`, `@nestjs/platform-socket.io` +
-  `@socket.io/redis-adapter`, `@aws-sdk/client-s3` for MinIO, `sharp`, `libphonenumber-js`,
-  `nestjs-pino` for structured logs with redaction of `authorization`, `cookie`, `code`,
-  `refreshToken`.
-- **Testing**: Jest unit tests; e2e with `supertest` + `@testcontainers/postgresql` using image
-  `postgres:16-trixie` and `@testcontainers/redis`. Responses checked against `openapi.yaml` with
-  `jest-openapi`.
+- **Decision**: NestJS 12 (ESM, `.js` import suffixes) on `@nestjs/platform-express` (cookies,
+  credentialed CORS and Multer are documented there; `NodeAdapter` can be adopted later). Libraries:
+  Prisma (ORM + migrations, Postgres driver adapter), `@nestjs/jwt`, `@nestjs/config`, Zod schemas
+  with Nest's built-in `StandardSchemaValidationPipe` (`@Body({ schema })`) and an
+  `exceptionFactory` producing the contract `Error` shape, `ioredis`, `@nestjs/websockets` +
+  `@nestjs/platform-socket.io` + `@socket.io/redis-adapter` (socket auth in `server.use()`
+  middleware, since async `handleConnection` is not awaited), `@aws-sdk/client-s3`, `sharp`,
+  `libphonenumber-js`, `nestjs-pino` with redaction of `authorization`, `cookie`, `code`,
+  `refreshToken`, `cookie-parser`, `@nestjs/schedule` for cleanup jobs.
+- **Testing**: Vitest (the Nest 12 default) for unit tests; e2e with `supertest` +
+  `@testcontainers/postgresql` (image `postgres:16-trixie`) and `@testcontainers/redis`. Responses
+  are checked against `contracts/openapi.yaml` component schemas with Ajv (draft 2020-12, needed
+  for OpenAPI 3.1 `type: [string, 'null']`).
+- **Not used**: the scaffold's NestJS Observe telemetry (sends data to a third party).
 
 ## R11. Web libraries
 
