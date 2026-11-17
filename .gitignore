@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.next/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.claude/settings.local.json
+# Flutter
+.dart_tool/
+build/
+.flutter-plugins*
+*.iml
+.idea/
