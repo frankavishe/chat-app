@@ -13,3 +13,8 @@ build/
 .flutter-plugins*
 *.iml
 .idea/
+
+# Separate code repositories (each has its own git history)
+/api/
+/web/
+/mobile/

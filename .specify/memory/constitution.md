@@ -1,10 +1,9 @@
 <!--
 Sync Impact Report
-- Version change: (template) → 1.0.0
-- Principles defined: I. End-to-End Encryption by Default; II. Contract-First Protocol;
-  III. Test-First for Protocol & Crypto (NON-NEGOTIABLE); IV. Platform Parity;
-  V. Simplicity & Reproducible Infrastructure
-- Added sections: Technology & Security Constraints; Development Workflow & Quality Gates; Governance
+- Version change: 1.0.0 → 1.1.0 (MINOR: new section, expanded guidance)
+- Modified principles: II. Contract-First Protocol (contract lives in the api repo);
+  V. Simplicity & Reproducible Infrastructure (compose file lives in the api repo)
+- Added sections: Repository Structure (separate api, web, mobile repos + Spec Kit repo)
 - Removed sections: none
 - Templates: plan/spec/tasks templates read this file at runtime; no template edits required
 - Deferred TODOs: none
@@ -30,10 +29,11 @@ Rationale: the product promise is private messaging; any server-side plaintext p
 
 ### II. Contract-First Protocol
 
-- `packages/contracts` (OpenAPI for REST, JSON Schema for WebSocket events) is the single source
-  of truth for every client–server interaction.
-- Contract changes MUST land before or with the implementing code, and generated types for the
-  API, web, and mobile apps MUST be regenerated in the same change.
+- `contracts/` in the `api` repository (OpenAPI for REST, JSON Schema for WebSocket events) is the
+  single source of truth for every client–server interaction.
+- Contract changes MUST land in the `api` repo before or with the implementing code. The `web` and
+  `mobile` repos generate their types from that contract and MUST regenerate them in the matching
+  change on their side.
 - Breaking contract changes MUST bump the protocol version and keep the previous version working
   until both clients have shipped the new one.
 
@@ -66,12 +66,26 @@ Rationale: users mix devices; a feature that works on one platform only is a bro
 - Runtime dependencies are limited to PostgreSQL 16 (`postgres:16-trixie`), Redis, S3-compatible
   object storage (MinIO in development), and coturn. Adding another stateful service requires a
   documented justification in the plan's Complexity Tracking table.
-- The full stack MUST start with one `docker compose up` using `infra/docker-compose.yml` and
-  `.env.example` defaults.
+- The backend and its services MUST start with one `docker compose up` from the `api` repo using
+  its `docker-compose.yml` and `.env.example` defaults; each client repo MUST start with a single
+  documented command pointed at that backend.
 - Prefer the smallest design that satisfies the spec (YAGNI). Sender keys, SFUs, and multi-region
   deployment are out of scope until a spec requires them.
 
 Rationale: a small, reproducible stack is easier to secure, test, and run.
+
+## Repository Structure
+
+- Four independent Git repositories:
+  - this Spec Kit repo (`chat app/`): constitution, specs, plans, tasks — no application code;
+  - `api/`: NestJS backend, Prisma schema, `contracts/`, and the `docker-compose.yml` for
+    PostgreSQL, Redis, MinIO and coturn;
+  - `web/`: Next.js web client;
+  - `mobile/`: Flutter Android client.
+- The three code repos live as sub-folders of the Spec Kit repo for local development and are
+  listed in its `.gitignore`; each has its own history, README, CI and `.env.example`.
+- A feature uses the same branch name (e.g. `001-foundation-auth`) in every repo it touches.
+- No code repo may import source from another; sharing happens only through the API contract.
 
 ## Technology & Security Constraints
 
@@ -106,4 +120,4 @@ Rationale: a small, reproducible stack is easier to secure, test, and run.
   principles or materially expanded guidance, PATCH for clarifications.
 - `/speckit-analyze` and code review MUST verify compliance before `/speckit-implement` completes.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-17
+**Version**: 1.1.0 | **Ratified**: 2026-11-17 | **Last Amended**: 2026-11-17
