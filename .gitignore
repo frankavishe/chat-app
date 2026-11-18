@@ -18,3 +18,7 @@ build/
 /api/
 /web/
 /mobile/
+
+# Cloud credentials (never commit)
+*accessKeys*.csv
+*credentials*.csv
