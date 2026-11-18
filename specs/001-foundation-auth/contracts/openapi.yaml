@@ -14,8 +14,26 @@ tags:
   - name: devices
   - name: profile
   - name: contacts
+  - name: ops
 
 paths:
+  /health:
+    get:
+      tags: [ops]
+      operationId: health
+      summary: Liveness probe for the hosting platform. Does not touch the database or Redis.
+      security: []
+      responses:
+        '200':
+          description: The process is up.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: ok }
+
   /auth/request-code:
     post:
       tags: [auth]
