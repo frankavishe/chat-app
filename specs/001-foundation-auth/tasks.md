@@ -83,11 +83,11 @@ and `mobile/` are three separate Git repositories.
 - [X] T035 [US1] Implement `SessionService` (create, rotate, revoke) in `api/src/auth/session.service.ts`
 - [X] T036 [US1] Implement `DevicesService.registerAndroid` in a transaction with user row lock; emit `device:revoked` to replaced device
 - [X] T037 [US1] `AuthController` `POST /auth/request-code|verify|refresh|sign-out` with rate limits in `api/src/auth/auth.controller.ts`
-- [ ] T038 [P] [US1] Mobile: phone entry screen with country picker + validation in `mobile/lib/features/auth/phone_screen.dart`
-- [ ] T039 [P] [US1] Mobile: code screen (6-digit input, resend countdown, error messages for each error code) in `mobile/lib/features/auth/code_screen.dart`
-- [ ] T040 [US1] Mobile: `AuthController` (Riverpod) — verify, persist tokens, restore session on start, handle `device:revoked` (wipe storage, go to sign-in) in `mobile/lib/features/auth/auth_controller.dart`
-- [ ] T041 [US1] Mobile: home with Chats / Updates / Calls tabs (placeholders) in `mobile/lib/features/home/home_screen.dart`
-- [ ] T042 [US1] Mobile widget tests for phone and code screens in `mobile/test/auth_screens_test.dart`
+- [X] T038 [P] [US1] Mobile: phone entry screen with country picker + validation in `mobile/lib/features/auth/phone_screen.dart`
+- [X] T039 [P] [US1] Mobile: code screen (6-digit input, resend countdown, error messages for each error code) in `mobile/lib/features/auth/code_screen.dart`
+- [X] T040 [US1] Mobile: `AuthController` (Riverpod) — verify, persist tokens, restore session on start, handle `device:revoked` (wipe storage, go to sign-in) in `mobile/lib/features/auth/auth_controller.dart`
+- [X] T041 [US1] Mobile: home with Chats / Updates / Calls tabs (placeholders) in `mobile/lib/features/home/home_screen.dart`
+- [X] T042 [US1] Mobile widget tests for phone and code screens in `mobile/test/auth_screens_test.dart`
 
 **Checkpoint**: US1 independently testable on emulator.
 
