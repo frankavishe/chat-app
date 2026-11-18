@@ -31,8 +31,8 @@ and `mobile/` are three separate Git repositories.
 - [X] T006 [P] Add `api/Dockerfile` (multi-stage, node:24-trixie-slim) and `api` service in compose under profile `full`
 - [X] T007 [P] Add API deps (prisma, @prisma/client, @prisma/adapter-pg, @nestjs/jwt, @nestjs/config, @nestjs/schedule, zod, ioredis, @nestjs/platform-socket.io, @nestjs/websockets, socket.io, @socket.io/redis-adapter, @aws-sdk/client-s3, sharp, libphonenumber-js, nestjs-pino, pino-http, cookie-parser, uuid) and dev deps (@testcontainers/postgresql, @testcontainers/redis, ajv, ajv-formats, yaml, socket.io-client, @types/multer, @types/cookie-parser)
 - [X] T008 [P] Add web deps (@tanstack/react-query, zustand, openapi-fetch, openapi-typescript, socket.io-client, libphonenumber-js, react-easy-crop, vitest, @testing-library/react, jsdom, @playwright/test) and `web/.env.example`
-- [ ] T009 [P] Add mobile deps (flutter_riverpod, go_router, dio, socket_io_client, flutter_secure_storage, flutter_contacts, permission_handler, image_picker, image_cropper, phone_numbers_parser, cached_network_image, device_info_plus) and Android permissions (INTERNET, READ_CONTACTS)
-- [ ] T010 [P] Write a README in each repo (`api/README.md`, `web/README.md`, `mobile/README.md`) with setup, run and test commands (FR-016) — api + web done; mobile pending
+- [X] T009 [P] Add mobile deps (flutter_riverpod, go_router, dio, socket_io_client, flutter_secure_storage, flutter_contacts, permission_handler, image_picker, image_cropper, phone_numbers_parser, cached_network_image, device_info_plus) and Android permissions (INTERNET, READ_CONTACTS)
+- [X] T010 [P] Write a README in each repo (`api/README.md`, `web/README.md`, `mobile/README.md`) with setup, run and test commands (FR-016)
 
 ---
 
@@ -54,10 +54,10 @@ and `mobile/` are three separate Git repositories.
 - [X] T022 [P] Web: API client from generated types (`npm run gen:api` → `src/lib/api/schema.d.ts`), fetch wrapper with `credentials: 'include'` and single-flight refresh on 401 in `web/src/lib/api/client.ts`
 - [X] T023 [P] Web: auth store (access token in memory, user, device) in `web/src/stores/auth.ts`; QueryClient provider in `web/src/app/providers.tsx`
 - [X] T024 [P] Web: socket client with reconnect + token refresh on `auth:expired`/`connect_error` in `web/src/lib/realtime/socket.ts`
-- [ ] T025 [P] Mobile: Dart models matching contract schemas in `mobile/lib/core/api/models/` + test decoding OpenAPI examples in `mobile/test/contract_models_test.dart`
-- [ ] T026 [P] Mobile: dio client with auth interceptor (refresh via secure-stored refresh token, single-flight) in `mobile/lib/core/api/api_client.dart`; secure store wrapper in `mobile/lib/core/storage/secure_store.dart`
-- [ ] T027 [P] Mobile: socket service in `mobile/lib/core/realtime/socket_service.dart`
-- [ ] T028 [P] Mobile: app theme (original palette), go_router with auth redirect, Riverpod root in `mobile/lib/app.dart`, `mobile/lib/router.dart`
+- [X] T025 [P] Mobile: Dart models matching contract schemas in `mobile/lib/core/api/models/` + test decoding OpenAPI examples in `mobile/test/contract_models_test.dart`
+- [X] T026 [P] Mobile: dio client with auth interceptor (refresh via secure-stored refresh token, single-flight) in `mobile/lib/core/api/api_client.dart`; secure store wrapper in `mobile/lib/core/storage/secure_store.dart`
+- [X] T027 [P] Mobile: socket service in `mobile/lib/core/realtime/socket_service.dart`
+- [X] T028 [P] Mobile: app theme (original palette), go_router with auth redirect, Riverpod root in `mobile/lib/app.dart`, `mobile/lib/router.dart`
 
 **Checkpoint**: compose stack up, migrations applied, empty app shells run on web and Android.
 
