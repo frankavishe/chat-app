@@ -28,11 +28,11 @@ and `mobile/` are three separate Git repositories.
 - [X] T003 [P] Scaffold Flutter app in `mobile/` (`flutter create --platforms android --org com.chatapp --project-name chat_app mobile`), `git init`, branch `001-foundation-auth`, set Android minSdk 24
 - [X] T004 Copy contracts to `api/contracts/openapi.yaml` and `api/contracts/ws-events.schema.json`
 - [X] T005 Create `api/docker-compose.yml` (postgres:16-trixie, redis:7-alpine, minio, minio-init creating `avatars` bucket, healthchecks) and `api/.env.example`
-- [ ] T006 [P] Add `api/Dockerfile` (multi-stage, node:24-trixie-slim) and `api` service in compose under profile `full`
+- [X] T006 [P] Add `api/Dockerfile` (multi-stage, node:24-trixie-slim) and `api` service in compose under profile `full`
 - [X] T007 [P] Add API deps (prisma, @prisma/client, @prisma/adapter-pg, @nestjs/jwt, @nestjs/config, @nestjs/schedule, zod, ioredis, @nestjs/platform-socket.io, @nestjs/websockets, socket.io, @socket.io/redis-adapter, @aws-sdk/client-s3, sharp, libphonenumber-js, nestjs-pino, pino-http, cookie-parser, uuid) and dev deps (@testcontainers/postgresql, @testcontainers/redis, ajv, ajv-formats, yaml, socket.io-client, @types/multer, @types/cookie-parser)
-- [ ] T008 [P] Add web deps (@tanstack/react-query, zustand, openapi-fetch, openapi-typescript, socket.io-client, libphonenumber-js, react-easy-crop, vitest, @testing-library/react, jsdom, @playwright/test) and `web/.env.example`
+- [X] T008 [P] Add web deps (@tanstack/react-query, zustand, openapi-fetch, openapi-typescript, socket.io-client, libphonenumber-js, react-easy-crop, vitest, @testing-library/react, jsdom, @playwright/test) and `web/.env.example`
 - [ ] T009 [P] Add mobile deps (flutter_riverpod, go_router, dio, socket_io_client, flutter_secure_storage, flutter_contacts, permission_handler, image_picker, image_cropper, phone_numbers_parser, cached_network_image, device_info_plus) and Android permissions (INTERNET, READ_CONTACTS)
-- [ ] T010 [P] Write a README in each repo (`api/README.md`, `web/README.md`, `mobile/README.md`) with setup, run and test commands (FR-016)
+- [ ] T010 [P] Write a README in each repo (`api/README.md`, `web/README.md`, `mobile/README.md`) with setup, run and test commands (FR-016) — api + web done; mobile pending
 
 ---
 
@@ -51,9 +51,9 @@ and `mobile/` are three separate Git repositories.
 - [X] T019 `JwtAuthGuard` checking signature + device active (Redis cache `dev:status:*`, fallback DB) in `api/src/common/auth.guard.ts`
 - [X] T020 Realtime gateway on namespace `/rt` with handshake auth in `server.use()` middleware, rooms `user:*`/`device:*`, Redis adapter, and `RealtimeService.emitToDevice/emitToUsers` in `api/src/realtime/`
 - [X] T021 e2e harness: Testcontainers postgres:16-trixie + redis, run migrations, boot app, contract matcher (Ajv 2020 over `contracts/openapi.yaml` components) in `api/test/support/`
-- [ ] T022 [P] Web: API client from generated types (`npm run gen:api` → `src/lib/api/schema.d.ts`), fetch wrapper with `credentials: 'include'` and single-flight refresh on 401 in `web/src/lib/api/client.ts`
-- [ ] T023 [P] Web: auth store (access token in memory, user, device) in `web/src/stores/auth.ts`; QueryClient provider in `web/src/app/providers.tsx`
-- [ ] T024 [P] Web: socket client with reconnect + token refresh on `auth:expired`/`connect_error` in `web/src/lib/realtime/socket.ts`
+- [X] T022 [P] Web: API client from generated types (`npm run gen:api` → `src/lib/api/schema.d.ts`), fetch wrapper with `credentials: 'include'` and single-flight refresh on 401 in `web/src/lib/api/client.ts`
+- [X] T023 [P] Web: auth store (access token in memory, user, device) in `web/src/stores/auth.ts`; QueryClient provider in `web/src/app/providers.tsx`
+- [X] T024 [P] Web: socket client with reconnect + token refresh on `auth:expired`/`connect_error` in `web/src/lib/realtime/socket.ts`
 - [ ] T025 [P] Mobile: Dart models matching contract schemas in `mobile/lib/core/api/models/` + test decoding OpenAPI examples in `mobile/test/contract_models_test.dart`
 - [ ] T026 [P] Mobile: dio client with auth interceptor (refresh via secure-stored refresh token, single-flight) in `mobile/lib/core/api/api_client.dart`; secure store wrapper in `mobile/lib/core/storage/secure_store.dart`
 - [ ] T027 [P] Mobile: socket service in `mobile/lib/core/realtime/socket_service.dart`
@@ -110,7 +110,7 @@ and `mobile/` are three separate Git repositories.
 - [X] T046 [US2] Emit `profile:updated` to the user and to users who have them as a contact
 - [ ] T047 [P] [US2] Mobile: profile setup screen (name required, photo pick + crop) shown when `profileComplete=false` in `mobile/lib/features/profile/profile_setup_screen.dart`
 - [ ] T048 [P] [US2] Mobile: Settings → Profile edit screen in `mobile/lib/features/profile/profile_edit_screen.dart`; apply `profile:updated`
-- [ ] T049 [P] [US2] Web: Settings → Profile page with crop (react-easy-crop) in `web/src/app/(app)/settings/profile/page.tsx`; apply `profile:updated` to the auth store
+- [X] T049 [P] [US2] Web: Settings → Profile page with crop (react-easy-crop) in `web/src/app/(app)/settings/profile/page.tsx`; apply `profile:updated` to the auth store
 
 **Checkpoint**: US1 + US2 = usable MVP on Android.
 
@@ -130,10 +130,10 @@ and `mobile/` are three separate Git repositories.
 ### Implementation
 
 - [X] T052 [US3] Implement `registerWeb` + cookie handling in `AuthController`; enable CORS with credentials for `WEB_ORIGIN`
-- [ ] T053 [P] [US3] Web: sign-in page (country + phone, then code, resend countdown, error states incl. "create your account on the Android app first") in `web/src/app/(auth)/sign-in/page.tsx`
-- [ ] T054 [US3] Web: guarded `(app)` layout that restores session via `/auth/refresh` on load, redirects to sign-in, opens socket, handles `device:revoked` in `web/src/app/(app)/layout.tsx`
-- [ ] T055 [P] [US3] Web: home shell (left chat list placeholder, right empty state, original design) in `web/src/app/(app)/page.tsx`
-- [ ] T056 [P] [US3] Web: Vitest tests for phone validation and the sign-in form in `web/tests/sign-in.test.tsx`
+- [X] T053 [P] [US3] Web: sign-in page (country + phone, then code, resend countdown, error states incl. "create your account on the Android app first") in `web/src/app/(auth)/sign-in/page.tsx`
+- [X] T054 [US3] Web: guarded `(app)` layout that restores session via `/auth/refresh` on load, redirects to sign-in, opens socket, handles `device:revoked` in `web/src/app/(app)/layout.tsx`
+- [X] T055 [P] [US3] Web: home shell (left chat list placeholder, right empty state, original design) in `web/src/app/(app)/page.tsx`
+- [X] T056 [P] [US3] Web: Vitest tests for phone validation and the sign-in form in `web/tests/sign-in.test.tsx`
 
 ---
 
@@ -151,8 +151,8 @@ and `mobile/` are three separate Git repositories.
 
 - [X] T058 [US4] `DevicesController` (`GET /devices`, `DELETE /devices/:id`), update `last_active_at` at most once a minute in guard, bust `dev:status` cache on revoke in `api/src/devices/`
 - [ ] T059 [P] [US4] Mobile: Settings → Linked devices screen in `mobile/lib/features/devices/linked_devices_screen.dart`
-- [ ] T060 [P] [US4] Web: Settings → Devices page in `web/src/app/(app)/settings/devices/page.tsx`
-- [ ] T061 [US4] Playwright: two browser contexts; revoke one from the other; it lands on sign-in within 10 s in `web/tests/e2e/devices.spec.ts`
+- [X] T060 [P] [US4] Web: Settings → Devices page in `web/src/app/(app)/settings/devices/page.tsx`
+- [ ] T061 [US4] Playwright: two browser contexts; revoke one from the other; it lands on sign-in within 10 s in `web/tests/e2e/devices.spec.ts` — spec written, not yet run (needs local API on :3000)
 
 ---
 
@@ -171,14 +171,14 @@ and `mobile/` are three separate Git repositories.
 - [X] T063 [US5] `ContactsService` + controllers (`POST /contacts/discover`, `GET /contacts`, `GET /users/lookup`) in `api/src/contacts/`
 - [ ] T064 [P] [US5] Mobile: contacts repository (permission, read + normalise numbers, discover on app open at most hourly) in `mobile/lib/features/contacts/contacts_repository.dart`
 - [ ] T065 [P] [US5] Mobile: New chat screen (contact list + "enter number" lookup, permission-denied state) in `mobile/lib/features/contacts/new_chat_screen.dart`
-- [ ] T066 [P] [US5] Web: New chat page with number lookup and contacts list in `web/src/app/(app)/new-chat/page.tsx`
+- [X] T066 [P] [US5] Web: New chat page with number lookup and contacts list in `web/src/app/(app)/new-chat/page.tsx`
 
 ---
 
 ## Phase 8: Polish & Cross-Cutting
 
 - [X] T067 [P] OTP cleanup job (delete challenges > 24 h) and 30-day inactive device sweep in `api/src/auth/cleanup.service.ts`
-- [ ] T068 [P] Playwright full sign-in flow (reads OTP via a dev-only `GET /v1/dev/last-otp` enabled only when `NODE_ENV=development`) in `web/tests/e2e/sign-in.spec.ts`
+- [ ] T068 [P] Playwright full sign-in flow (reads OTP via a dev-only `GET /v1/dev/last-otp` enabled only when `NODE_ENV=development`) in `web/tests/e2e/sign-in.spec.ts` — spec written, not yet run (needs local API on :3000)
 - [ ] T069 [P] Mobile integration test: sign up → profile → home → restart in `mobile/integration_test/sign_in_test.dart`
 - [X] T070 [P] Verify production logs contain no tokens/OTP (e2e with `NODE_ENV=production` logger capture) in `api/test/logging.e2e-spec.ts`
 - [ ] T071 Run all checks from quickstart.md §2 and manual scenarios §3; fix failures
