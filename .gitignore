@@ -22,3 +22,6 @@ build/
 # Cloud credentials (never commit)
 *accessKeys*.csv
 *credentials*.csv
+
+# Local phase tracker (not committed)
+phase.md
