@@ -108,8 +108,8 @@ and `mobile/` are three separate Git repositories.
 - [X] T044 [P] [US2] `StorageService` (S3 client for MinIO: put/get/delete) in `api/src/storage/storage.service.ts`
 - [X] T045 [US2] `UsersService` + `MeController` (`GET/PATCH /me`, `PUT/DELETE /me/avatar` with sharp 640/96 WebP) and `AvatarsController` in `api/src/users/`
 - [X] T046 [US2] Emit `profile:updated` to the user and to users who have them as a contact
-- [ ] T047 [P] [US2] Mobile: profile setup screen (name required, photo pick + crop) shown when `profileComplete=false` in `mobile/lib/features/profile/profile_setup_screen.dart`
-- [ ] T048 [P] [US2] Mobile: Settings → Profile edit screen in `mobile/lib/features/profile/profile_edit_screen.dart`; apply `profile:updated`
+- [X] T047 [P] [US2] Mobile: profile setup screen (name required, photo pick + crop) shown when `profileComplete=false` in `mobile/lib/features/profile/profile_setup_screen.dart`
+- [X] T048 [P] [US2] Mobile: Settings → Profile edit screen in `mobile/lib/features/profile/profile_edit_screen.dart`; apply `profile:updated`
 - [X] T049 [P] [US2] Web: Settings → Profile page with crop (react-easy-crop) in `web/src/app/(app)/settings/profile/page.tsx`; apply `profile:updated` to the auth store
 
 **Checkpoint**: US1 + US2 = usable MVP on Android.
