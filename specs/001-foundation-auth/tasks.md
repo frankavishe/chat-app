@@ -150,7 +150,7 @@ and `mobile/` are three separate Git repositories.
 ### Implementation
 
 - [X] T058 [US4] `DevicesController` (`GET /devices`, `DELETE /devices/:id`), update `last_active_at` at most once a minute in guard, bust `dev:status` cache on revoke in `api/src/devices/`
-- [ ] T059 [P] [US4] Mobile: Settings → Linked devices screen in `mobile/lib/features/devices/linked_devices_screen.dart`
+- [X] T059 [P] [US4] Mobile: Settings → Linked devices screen in `mobile/lib/features/devices/linked_devices_screen.dart`
 - [X] T060 [P] [US4] Web: Settings → Devices page in `web/src/app/(app)/settings/devices/page.tsx`
 - [ ] T061 [US4] Playwright: two browser contexts; revoke one from the other; it lands on sign-in within 10 s in `web/tests/e2e/devices.spec.ts` — spec written, not yet run (needs local API on :3000)
 
