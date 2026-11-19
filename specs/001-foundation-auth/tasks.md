@@ -169,8 +169,8 @@ and `mobile/` are three separate Git repositories.
 ### Implementation
 
 - [X] T063 [US5] `ContactsService` + controllers (`POST /contacts/discover`, `GET /contacts`, `GET /users/lookup`) in `api/src/contacts/`
-- [ ] T064 [P] [US5] Mobile: contacts repository (permission, read + normalise numbers, discover on app open at most hourly) in `mobile/lib/features/contacts/contacts_repository.dart`
-- [ ] T065 [P] [US5] Mobile: New chat screen (contact list + "enter number" lookup, permission-denied state) in `mobile/lib/features/contacts/new_chat_screen.dart`
+- [X] T064 [P] [US5] Mobile: contacts repository (permission, read + normalise numbers, discover on app open at most hourly) in `mobile/lib/features/contacts/contacts_repository.dart`
+- [X] T065 [P] [US5] Mobile: New chat screen (contact list + "enter number" lookup, permission-denied state) in `mobile/lib/features/contacts/new_chat_screen.dart`
 - [X] T066 [P] [US5] Web: New chat page with number lookup and contacts list in `web/src/app/(app)/new-chat/page.tsx`
 
 ---
