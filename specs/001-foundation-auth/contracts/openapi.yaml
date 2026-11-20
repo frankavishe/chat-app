@@ -422,6 +422,7 @@ components:
             - TOO_MANY_ATTEMPTS
             - ACCOUNT_NOT_FOUND
             - USER_NOT_FOUND
+            - NOT_FOUND
             - DEVICE_NOT_FOUND
             - SESSION_REVOKED
             - UNAUTHORIZED
